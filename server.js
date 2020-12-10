@@ -22,10 +22,12 @@ app.use(body.json());
 const auth = require("./src/routers/Auth/Auth.router.js");
 const profile = require("./src/routers/Auth/profile.router.js");
 const album = require('./src/routers/Album/album.router')
+const photo = require('./src/routers/Photo/photo.router')
 
 app.use("/", auth);
 app.use("/", profile);
 app.use("/", album);
+app.use('/', photo);
 
 
 app.listen(process.env.PORT || 9999);

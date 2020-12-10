@@ -10,116 +10,113 @@ const userSchema = require("../../schemaModel/userSchema");
 
 let user = {};
 
-exports.register = async (req, res) => {
-  const hashPassword = await bcrypt.hash(req.body.password, salt);
-  user = {
-    first_name: req.body.first_name,
-    last_name: req.body.last_name,
-    email: req.body.email,
-    password: hashPassword
-  };
-  registerModel(
-    user.first_name,
-    user.last_name,
-    user.email,
-    user.password,
-    (rs, err) => {
-      if (err) {
-        res.status(403).json(err);
-      } else {
-        res.status(200).json(rs);
-      }
-    }
-  );
+exports.register = async(req, res) => {
+    const hashPassword = await bcrypt.hash(req.body.password, salt);
+    user = {
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
+        email: req.body.email,
+        password: hashPassword
+    };
+    registerModel(
+        user.first_name,
+        user.last_name,
+        user.email,
+        user.password,
+        (rs, err) => {
+            if (err) {
+                res.status(403).json(err);
+            } else {
+                res.status(200).json(rs);
+            }
+        }
+    );
 };
 
-exports.confirmEmail = async (req, res) => {
-  console.log(userSchema);
-  userSchema.first_name = user.first_name;
-  userSchema.last_name = user.last_name;
-  userSchema.email = user.email;
-  userSchema.password = user.password;
-  userSchema.method = "local"
+exports.confirmEmail = async(req, res) => {
+    userSchema.first_name = user.first_name;
+    userSchema.last_name = user.last_name;
+    userSchema.email = user.email;
+    userSchema.password = user.password;
+    userSchema.method = "local"
 
-  db.then(conn => {
-    conn.collection("users").insertOne(userSchema, (err, rs) => {
-      if (err) {
-        res.send(err);
-        return;
-      }
-      res.status(200).json("Register success");
+    db.then(conn => {
+        conn.collection("users").insertOne(userSchema, (err, rs) => {
+            if (err) {
+                res.send(err);
+                return;
+            }
+            res.status(200).json("Register success");
+        });
     });
-  });
 };
 
 exports.login = (req, res) => {
-  let email = req.body.email,
-    password = req.body.password;
-  db.then(conn => {
-    conn.collection("users").findOne({ email: email }, (err, user) => {
-      if (!user) {
-        res.json("Wrong username");
-      } else {
-        bcrypt.compare(password, user.password, (err, isHash) => {
-          if (isHash) {
-            let token = getToken(user)
-            res.status(200).json(token)
-          } else {
-            res.json("Wrong password");
-          }
+    let email = req.body.email,
+        password = req.body.password;
+    db.then(conn => {
+        conn.collection("users").findOne({ email: email }, (err, user) => {
+            if (!user) {
+                res.json("Wrong username");
+            } else {
+                bcrypt.compare(password, user.password, (err, isHash) => {
+                    if (isHash) {
+                        let token = getToken(user)
+                        res.status(200).json(token)
+                    } else {
+                        res.json("Wrong password");
+                    }
+                });
+            }
         });
-      }
+    }).catch(err => {
+        return err;
     });
-  }).catch(err => {
-    return err;
-  });
 };
 
 exports.refreshToken = () => {};
 
-exports.updatePassword = async (req, res) => {
-  let newPassword = req.body.new_password;
+exports.updatePassword = async(req, res) => {
+    let newPassword = req.body.new_password;
 
-  const hashPassword = await bcrypt.hash(newPassword, 10);
-  db.then(conn => {
-    conn.collection("users").updateOne(
-      { email: req.user.email },
-      {
-        $set: {
-          password: hashPassword
-        }
-      },
-      (err, rs) => {
-        if (err) {
-          res.json(err);
-        }
-        if (rs) {
-          res.json("Password upadated");
-        }
-      }
-    );
-  });
+    const hashPassword = await bcrypt.hash(newPassword, 10);
+    db.then(conn => {
+        conn.collection("users").updateOne({ email: req.user.email }, {
+                $set: {
+                    password: hashPassword
+                }
+            },
+            (err, rs) => {
+                if (err) {
+                    res.json(err);
+                }
+                if (rs) {
+                    res.json("Password upadated");
+                }
+            }
+        );
+    });
 };
 
 exports.forgotPassword = (req, res) => {
-  let { email } = req.body;
-  db.then(conn => {
-    conn.collection("users").findOne({ email: email }, (err, user) => {
-      if (!user) {
-        return res.json("Wrong email");
-      } else {
-        sendEmail(user.email, true, (err, rs) => {
-          if (err) {
-            return res.status(403).json(err);
-          }
-          res.status(200).json("Check email");
+    let { email } = req.body;
+    db.then(conn => {
+        conn.collection("users").findOne({ email: email }, (err, user) => {
+            if (!user) {
+                return res.json("Wrong email");
+            } else {
+                sendEmail(user.email, true, (err, rs) => {
+                    if (err) {
+                        return res.status(403).json(err);
+                    }
+                    res.status(200).json("Check email");
+                });
+            }
         });
-      }
     });
-  });
 };
 
 exports.forgotPasswordUpdate = (req, res) => {
-  res.status(200).json("Success!");
-  // res.redirect('http://localhost:8888/update-password')
+    res.status(200).json("Success!");
+    // res.redirect('http://localhost:8888/update-password')
 };

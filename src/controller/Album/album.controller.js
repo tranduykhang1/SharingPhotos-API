@@ -1,4 +1,4 @@
-const { createAlbumModel, getAlbumsModel } = require('../../models/Album/album.model')
+const { createAlbumModel, getAlbumsModel, editAlbumsModel, deleteAlbumsModel } = require('../../models/Album/album.model')
 
 module.exports = {
     createAlbum(req, res) {
@@ -9,30 +9,35 @@ module.exports = {
         const albumName = req.body.album_name
         const album = {
             email: email,
-            albums: [
-                {
-                    name: albumName,
-                    create_day: fullDay,
-                    photo: []
-                }
-            ]
+            name: albumName,
+            create_day: fullDay,
+            photo: []
         }
-        createAlbumModel(album, (err, result) =>{
-            if(err) return res.json(err)
+        createAlbumModel(album, (err, result) => {
+            if (err) return res.json(err)
             return res.status(200).json("Created")
         })
     },
-    getAlbums(req,res){
+    getAlbums(req, res) {
         const email = req.user.email
-        getAlbumsModel(email, (err,result) =>{
-            if(err) return res.json(err)
+        getAlbumsModel(email, (err, result) => {
+            if (err) return res.json(err)
             return res.status(200).json(result)
         })
     },
-    editAlbum(req,res) {
-
+    editAlbum(req, res) {
+        let { id } = req.body;
+        let { new_name } = req.body
+        editAlbumsModel(id, new_name, (err, result) => {
+            if (err) return res.json(err)
+            return res.status(200).json("Update success!");
+        })
     },
-    deleteAlbum(req,res){
-
+    deleteAlbum(req, res) {
+        let { id } = req.query;
+        deleteAlbumsModel(id, (err, result) => {
+            if (err) return res.json("Something went wrong")
+            return res.json("Delete success!");
+        })
     }
 }
