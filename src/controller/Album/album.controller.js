@@ -10,8 +10,7 @@ module.exports = {
         const album = {
             email: email,
             name: albumName,
-            create_day: fullDay,
-            photo: []
+            create_day: fullDay
         }
         createAlbumModel(album, (err, result) => {
             if (err) return res.json(err)

@@ -23,11 +23,15 @@ const auth = require("./src/routers/Auth/Auth.router.js");
 const profile = require("./src/routers/Auth/profile.router.js");
 const album = require('./src/routers/Album/album.router')
 const photo = require('./src/routers/Photo/photo.router')
+const follow = require('./src/routers/Follow/follow.router')
+const comment = require('./src/routers/Comment/comment.router');
 
 app.use("/", auth);
 app.use("/", profile);
 app.use("/", album);
 app.use('/', photo);
+app.use('/', follow);
+app.use('/', comment);
 
 
 app.listen(process.env.PORT || 9999);
