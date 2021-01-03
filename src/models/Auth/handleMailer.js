@@ -72,7 +72,7 @@ exports.sendEmail = (email, isForgot, cb) => {
     if (isForgot) {
         var mailOptions = {
             from: "sep31700215@gmail.com",
-            subject: "Cap nhat mat khau",
+            subject: "Cập nhật mật khẩu",
             to: email,
             html: templateForgotPassword(
                 divStyle,
@@ -83,16 +83,18 @@ exports.sendEmail = (email, isForgot, cb) => {
     } else {
         var mailOptions = {
             from: "sep31700215@gmail.com",
-            subject: "Xac nhan Email",
+            subject: "Xác nhận Email",
             to: email,
             html: templateRegister(divStyle, btnConfirmStyle, generateToken(email))
         };
     }
     transporter.sendMail(mailOptions, (err, rs) => {
-        if (err) {
-            console.log(err);
-            return cb(err);
+        if (rs) {
+            console.log('oke')
+            return cb(null, rs);
         }
-        return cb(null, rs);
+        console.log(err)
+        return cb(err, null);
+
     });
 };

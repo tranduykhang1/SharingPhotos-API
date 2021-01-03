@@ -7,8 +7,19 @@ const {
 const { cloudinaryUpload } = require("../../config/cloudinary.config");
 
 module.exports = {
-    getProfile(req, res) {
-        getProfileModel(req.user.email, (err, result) => {
+    async getProfile(req, res) {
+        let { _id } = req.user
+        getProfileModel(_id, (err, result) => {
+            if (err) {
+                return res.json("Get profile fail");
+            }
+            return res.status(200).json(result);
+        });
+    },
+    getUserById(req, res) {
+        const { id } = req.query
+        console.log(id)
+        getProfileModel(id, (err, result) => {
             if (err) {
                 return res.json("Get profile fail");
             }
@@ -30,8 +41,17 @@ module.exports = {
             res.status(200).json("Update success!")
         })
     },
-    updateProfile(req, res) {
-        updateProfileModel(req.body, req.user.email, (err, result) => {
+    async updateProfile(req, res) {
+        let url;
+        if (req.file) {
+            const path = req.file.path;
+            const upload = await cloudinaryUpload(path, "/avatar");
+            url = upload.url
+        } else {
+            url = req.body.photo
+        }
+
+        updateProfileModel(req.body, url, req.user.email, (err, result) => {
             if (err) {
                 return res.json("Update fail!");
             }

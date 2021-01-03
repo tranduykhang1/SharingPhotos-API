@@ -5,18 +5,18 @@ const db = require("../../DB/DB.js");
 const { sendEmail } = require("../../models/Auth/handleMailer");
 
 
-exports.registerModel = async(first_name, last_name, email, password, cb) => {
+exports.registerModel = async(email, cb) => {
+    console.log(email)
     db.then(conn => {
-        const userdb = conn.collection("users");
-        userdb.findOne({ email: email }, (err, rs) => {
+        const userDb = conn.collection("users");
+        userDb.findOne({ email: email }, (err, rs) => {
             if (rs) {
                 return cb("Email exits");
             } else {
                 sendEmail(email, false, (err, rs) => {
-                    if (err) {
-                        return cb(new Error("Err send Mail"));
+                    if (rs) {
+                        return cb(null, "Check your email");
                     }
-                    return cb(null, "Check your email");
                 });
             }
         });
@@ -27,7 +27,7 @@ exports.registerModel = async(first_name, last_name, email, password, cb) => {
 
 exports.getToken = user => {
     let token = jwt.sign(user, env.jwtSecret, {
-        expiresIn: 3 * 900
+        expiresIn: 3 * 9000
     });
     return token
 };

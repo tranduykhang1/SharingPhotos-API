@@ -41,7 +41,7 @@ router.post('/login/google', googleLogin)
     });
     */
 router.post("/register", authController.register);
-router.put("/update-password", isVerify, authController.updatePassword);
+router.put("/update-password", authController.updatePassword);
 router.get("/confirm-email/", isVerify, authController.confirmEmail);
 
 router.post("/forgot-password", authController.forgotPassword);

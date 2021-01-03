@@ -1,5 +1,15 @@
 const { cloudinaryUpload } = require("../../config/cloudinary.config");
-const { uploadPhotoModel, getPhotoModel, removePhotoModel, searchPhotoModel } = require("../../models/Photo/photo.model");
+const {
+    uploadPhotoModel,
+    getPhotoByFollowingModel,
+    getPhotoModel,
+    removePhotoModel,
+    searchPhotoModel,
+    getAllPhotoModel,
+    getPhotoByIdModel,
+    savePhotoModel,
+    getListSearch
+} = require("../../models/Photo/photo.model");
 const { regexStr } = require("../../config/regex.config");
 
 // const { v4: uuidv4 } = require('uuid');
@@ -26,13 +36,49 @@ module.exports = {
             desc: desc,
             url: upload.url,
             comments: [],
-            reaction: []
+            reaction: [],
+            type: 'upload'
         };
 
         uploadPhotoModel(photosSchema, (err, result) => {
             if (err) return res.json("Err: " + err);
             return res.status(200).json("Upload Photo Success!");
         });
+    },
+    savePhoto(req, res) {
+        let { album } = req.body, { url } = req.body, { desc } = req.body, { title } = req.body, user = req.user._id
+        let titleRegex = regexStr(title)
+        const photosSchema = {
+            album: album,
+            user: user,
+            title: title,
+            title_regex: titleRegex,
+            desc: desc,
+            url: url,
+            type: 'save'
+        };
+        savePhotoModel(photosSchema, (err, result) => {
+            if (err) return res.json(err)
+            return res.json('Photo saved')
+        })
+    },
+    getPhotoById(req, res) {
+        const { id } = req.query
+        getPhotoByIdModel(id, (err, result) => {
+            return res.status(200).json(result);
+        })
+    },
+    getPhotoByFollowing(req, res) {
+        const { _id } = req.user
+        getPhotoByFollowingModel(_id, (err, result) => {
+            return res.status(200).json(result);
+        })
+    },
+    getAllPhoto(req, res) {
+        getAllPhotoModel((err, result) => {
+            return res.status(200).json(result);
+
+        })
     },
     getPhotoByAlbum(req, res) {
         const { id } = req.query
@@ -49,12 +95,21 @@ module.exports = {
     },
     searchPhoto(req, res) {
         const { q } = req.query
-        searchPhotoModel(q, (err, result) => {
+        const { _id } = req.user
+        let search = regexStr(q)
+        searchPhotoModel(search, _id, (err, result) => {
             if (err) {
                 return res.json(err)
             }
             return res.status(200).json(result);
         })
 
+    },
+    getListSearch(req, res) {
+        const { _id } = req.user
+        getListSearch(_id, (err, result) => {
+            return res.status(200).json(result)
+        })
     }
+
 }

@@ -10,10 +10,10 @@ module.exports = {
 
     },
     followUser(req, res) {
-        const { current_user } = req.body;
+        const { _id } = req.user
         const { follow_user } = req.body;
 
-        followUserModel(current_user, follow_user, (err, result) => {
+        followUserModel(_id, follow_user, (err, result) => {
             if (err) return res.json(err)
             res.status(200).json("Following this user!");
         })
@@ -21,9 +21,8 @@ module.exports = {
     },
     removeFollow(req, res) {
         const { follow_id } = req.query;
-        const user_id = req.user._id
-        console.log(user_id, follow_id)
-        removeFollowModel(user_id, follow_id, (err, result) => {
+        const { _id } = req.user
+        removeFollowModel(_id, follow_id, (err, result) => {
             if (result) {
                 return res.status(200).json("Remove success");
             }

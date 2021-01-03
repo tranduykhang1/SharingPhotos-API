@@ -19,13 +19,10 @@ exports.register = async(req, res) => {
         password: hashPassword
     };
     registerModel(
-        user.first_name,
-        user.last_name,
         user.email,
-        user.password,
-        (rs, err) => {
+        (err, rs) => {
             if (err) {
-                res.status(403).json(err);
+                res.json(err);
             } else {
                 res.status(200).json(rs);
             }
@@ -46,7 +43,7 @@ exports.confirmEmail = async(req, res) => {
                 res.send(err);
                 return;
             }
-            res.status(200).json("Register success");
+            res.redirect('http://localhost:1999/login')
         });
     });
 };
@@ -76,12 +73,17 @@ exports.login = (req, res) => {
 
 exports.refreshToken = () => {};
 
+var email = ""
+
 exports.updatePassword = async(req, res) => {
     let newPassword = req.body.new_password;
+    // let email;
+
+    console.log("Email:" + email + newPassword)
 
     const hashPassword = await bcrypt.hash(newPassword, 10);
     db.then(conn => {
-        conn.collection("users").updateOne({ email: req.user.email }, {
+        conn.collection("users").updateOne({ email: email }, {
                 $set: {
                     password: hashPassword
                 }
@@ -91,7 +93,7 @@ exports.updatePassword = async(req, res) => {
                     res.json(err);
                 }
                 if (rs) {
-                    res.json("Password upadated");
+                    res.json("Password updated");
                 }
             }
         );
@@ -117,6 +119,7 @@ exports.forgotPassword = (req, res) => {
 };
 
 exports.forgotPasswordUpdate = (req, res) => {
-    res.status(200).json("Success!");
-    // res.redirect('http://localhost:8888/update-password')
+    // res.status(200).json("Success!");
+    email = req.user.email
+    res.redirect('http://localhost:1999/update-password')
 };
